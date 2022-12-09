@@ -1,34 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>{{ asyncapi.info().title() }}</title>
+    <title>WebSockets echo server</title>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
     <meta content="utf-8" http-equiv="encoding">
+    <style>
+      body {
+          margin: 0;
+          padding: 0;
+          height: 100%;
+          overflow: hidden;
+          color: white;
+      }
+      
+      h1 {
+          background: #7F7FD5;
+          background: -webkit-linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5);
+          background: linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5);
+          background-clip: text;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+      }
+      
+      .container {
+          height: 100%;
+          display: flex;
+      }
+      
+      #toolbar {
+          display: flex;
+          flex-direction: column;
+          padding: 5px;
+          width: 70px;
+          height: 100vh;
+          background-color: #202020;
+      }
+      
+      #toolbar * {
+          margin-bottom: 6px;
+      }
+      
+      #toolbar label {
+          font-size: 12px;
+      }
+      
+      #toolbar input {
+          width: 80%;
+      }
+      
+      #toolbar button {
+          background-color: #1565c0;
+          border: none;
+          border-radius: 4px;
+          color:white;
+          padding: 2px;
+      }
+      img {
+          width: 2rem;
+          height: 2rem;
+          overflow: hidden;
+          margin: 0.2rem;
+          border: 2px solid #333;
+          border-radius: 100px;
+        }
+        svg{
+          margin-top: 3rem;
+
+        }
+        label{
+          margin-top: 1rem;
+        }
+      </style>
   </head>
 
   <body>
-    <h1>Open your browser console to see the logs and details of API you can use to talk to the server.</h1>
+    <section class="container">
+      <div id="toolbar">
+          <svg class="logo-text-3dverse" viewBox="0 0 254 60" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><title>3dverse</title><g class="first-part"><path d="M36 39c0-2.3.3-4.6.9-6.9l-.6-.4a14 14 0 0 0-4.2-1.8v-.2c2.5-.7 4.9-2.2 6.6-4.2 1.7-2.1 2.5-4.7 2.5-7.7a13.5 13.5 0 0 0-6-11.7 19 19 0 0 0-6.1-2.9 27 27 0 0 0-13.7 0c-2.1.6-4.2 1.5-6 2.6a18.5 18.5 0 0 0-7.8 10.4l12 2.8a7.4 7.4 0 0 1 7.5-6.1c1.8 0 3.5.5 4.8 1.5 1.4 1 2.1 2.6 2.1 4.6 0 1.3-.2 2.4-.8 3.2a6 6 0 0 1-2.1 2c-1 .5-2 .9-3 1l-3.6.3h-3.8v9.4H18c1.4 0 2.7.1 4 .4 1.3.2 2.5.5 3.7 1.1 1 .5 1.9 1.3 2.5 2.2.7 1 1 2.1 1 3.5a6.5 6.5 0 0 1-2.6 5.4c-.8.5-1.6 1-2.6 1.1-.9.3-1.8.4-2.8.4a9 9 0 0 1-6-2 9.8 9.8 0 0 1-3.3-4.8L0 45.4a18.6 18.6 0 0 0 14.7 13.7 30.7 30.7 0 0 0 14.7-.2 21 21 0 0 0 6.6-3.2c1.3-1 2.4-2 3.4-3.4A27.8 27.8 0 0 1 36 39z"></path><path d="M78.7 16.6H82V0H69.4v24h-.1a14.6 14.6 0 0 0-11.7-5.2 17.1 17.1 0 0 0-13.3 6 20 20 0 0 0-3.6 6.5 23.3 23.3 0 0 0 0 15.4 17.7 17.7 0 0 0 9.3 11 17 17 0 0 0 7.7 1.7c2.5 0 5-.5 7.3-1.5 2.3-1.1 4-2.6 5.3-4.6h.1v5h11.7V38.2l-6.6-16.9a3.4 3.4 0 0 1 3.2-4.6zm-9.4 26.2a9.2 9.2 0 0 1-4.7 5.4c-1.2.6-2.6.9-3.9.8-1.5 0-2.8-.3-4-.8a8.8 8.8 0 0 1-4.5-5.5 12 12 0 0 1 0-7.3 8.7 8.7 0 0 1 8.5-6.2 8.5 8.5 0 0 1 6.8 3.2 10.3 10.3 0 0 1 1.9 10.4z"></path></g><path d="M119 21.9a22 22 0 0 1 2.3-1.9h-12.2L101 45h-.3l-8-25h-14l15 38.5h13.8l5.1-13.1a27.2 27.2 0 0 1 1.2-15.9c1.2-2.8 3-5.4 5.2-7.6z"></path><path d="M150 24.3a17 17 0 0 0-6-4.1c-2.4-1-5-1.4-7.9-1.4-2.9 0-5.6.5-8.1 1.4a19.6 19.6 0 0 0-11 10.6c-1 2.6-1.6 5.4-1.6 8.6 0 3.2.5 6.1 1.6 8.6a18.2 18.2 0 0 0 11.3 10.3c2.7 1 5.4 1.4 8.2 1.4 4 0 7.4-.7 10.3-2.1 3-1.4 5.4-3.5 7.2-6l-8.8-5.6a10 10 0 0 1-8.5 4c-2.2 0-4.4-.7-6.2-2a8.3 8.3 0 0 1-2-2.4c-.6-.9-1-1.9-1-2.9h27.8V37c-.1-2-.6-4.1-1.3-6.1-1-2.6-2.3-4.8-4-6.6zm-22.5 10.5c0-1 .3-2 .8-2.8.4-.9 1-1.7 1.8-2.3.8-.7 1.7-1.3 2.7-1.6 1.1-.4 2.3-.6 3.4-.6 2.5 0 4.4.7 5.7 2.2a7.6 7.6 0 0 1 1.9 5.1h-16.3zM184.1 21.4l.1-2.2-1.2-.2h-1.5c-2.4 0-4.4.5-6.2 1.8a12.5 12.5 0 0 0-4.2 4.8h-.2V20h-12.2v38.5h12.7V38.7a9.5 9.5 0 0 1 2-5.5 8.7 8.7 0 0 1 6.9-3.2 14 14 0 0 1 3.8-8.6zM252 30.9a17 17 0 0 0-10-10.7 22.5 22.5 0 0 0-16 0 19.3 19.3 0 0 0-11 10.6c-1 2.6-1.6 5.4-1.6 8.6 0 3.2.6 6.1 1.7 8.6a18.3 18.3 0 0 0 11.3 10.3c2.7 1 5.4 1.4 8.2 1.4 4 0 7.4-.7 10.3-2.1 2.9-1.4 5.4-3.5 7.2-6l-8.8-5.6a10 10 0 0 1-8.5 4c-2.3 0-4.4-.7-6.2-2a8.3 8.3 0 0 1-2-2.4c-.6-.8-1-1.8-1-2.9h27.8l.1-1.5v-1.5c0-3.3-.5-6.2-1.4-8.8zm-26.4 4c0-1 .3-2 .7-2.9a8.8 8.8 0 0 1 4.6-4c1-.3 2.2-.5 3.4-.5 2.5 0 4.4.7 5.7 2.2a7.6 7.6 0 0 1 1.9 5.1h-16.3z"></path><path d="M210 39.4V38c-1-.7-2.1-1.4-3.4-1.9a29 29 0 0 0-4.3-1.3 35 35 0 0 1-5.4-1.5c-1.1-.5-1.7-1.3-1.7-2.3 0-1.2.5-2 1.5-2.4 1-.5 2.2-.7 3.3-.7 1.5 0 3 .3 4.4 1 1.4.6 2.6 1.4 3.7 2.4l7-7.1c-2-1.8-4.3-3.2-7-4a27 27 0 0 0-8.5-1.4c-2 0-3.8.2-5.6.7-1.9.5-3.6 1.2-5.2 2.3-1.5 1-2.8 2.4-3.7 4-.8 1.3-1.3 2.8-1.4 4.6l-.1 1.3a10 10 0 0 0 3.6 7.8c1 1 2.3 1.6 3.6 2.1 1.3.5 2.6 1 4 1.2a33 33 0 0 1 5.8 1.8c1.2.6 1.8 1.5 1.8 2.6 0 1.3-.5 2.1-1.5 2.6s-2 .8-3 .8c-1.9 0-3.7-.5-5.3-1.3-1.5-.7-3-1.8-4.1-3l-7.2 7.4c2 2 4.6 3.5 7.6 4.5a29 29 0 0 0 15 .8c2-.4 3.7-1.2 5.4-2.2a12 12 0 0 0 3.8-4.1l.3-.6a23 23 0 0 1-3.4-12.7z"></path></svg>
+          <label for="stroke">Stroke</label>
+          <input id="stroke" name='stroke' type="color">
+          <label for="lineWidth">Line Width</label>
+          <input id="lineWidth" name='lineWidth' type="number" value="5">
+          <label for="lineWidth">Drawers</label>
+          <div id="drawers" ></div>
+      </div>
+      <div class="drawing-board">
+          <canvas id="drawing-board"></canvas>
+      </div>
+  </section>
     <script>
     let connection;
 
     function displayHelp() {
-      console.log('Available channels:')
-      {%- for channelName, channel in asyncapi.channels() %}
-      {%- if channel.hasSubscribe() %}
-      console.log('* {{ channelName }}');
-      {%- endif -%}
-      {% endfor %}
-      console.log('Available commands:')
-      console.log('- listen: Establish a connection with the server at a given path.')
-      console.log('  Usage: listen(channelName)');
-      console.log(`  Example: listen('{{ asyncapi.channelNames()[0] }}')`);
-      console.log('- send: Send a message to the server at a currently connected path.')
-      console.log('  Usage: send(message)');
-      console.log(`  Example: send({ greet: 'Hello from client' })`);
+      listen('/echo')
+    }
+    var tableau = [
+      "https://designoholic.com/wp-content/uploads/2017/07/red-five-dribs.png",
+      "https://designoholic.com/wp-content/uploads/2017/07/avatar-rogemon.png",
+      "https://designoholic.com/wp-content/uploads/2017/07/avatar-colored-d.png", 
+      "https://designoholic.com/wp-content/uploads/2017/07/yala.png",
+      "https://designoholic.com/wp-content/uploads/2017/07/avatar_dribbble-02.jpg"
+    ];
+
+
+
+    function send(message) {
+      if (!connection) {
+        displayHelp();
+        return;
+      }
+      let msg = message;
+      if (typeof msg === 'object') msg = JSON.stringify(msg);
+      connection.send(msg);
     }
 
+    function getAvatr(id,index){
+      const avatar =`<img id="${id}" src="${tableau[index]}">`
+      return avatar;
+
+    }
+
+
+
+    displayHelp();
+
+    const canvas = document.getElementById('drawing-board');
+    const toolbar = document.getElementById('toolbar');
+    const ctx = canvas.getContext('2d');
+
+    const canvasOffsetX = canvas.offsetLeft;
+    const canvasOffsetY = canvas.offsetTop;
+
+    canvas.width = window.innerWidth - canvasOffsetX;
+    canvas.height = window.innerHeight - canvasOffsetY;
+
+    let isPainting = false;
+    let lineWidth = 5;
+    let color = '#000000'
+    let startX;
+    let startY;
+
+    toolbar.addEventListener('change', e => {
+        
+        if(e.target.id === 'stroke') {
+            ctx.strokeStyle = e.target.value;
+            color= e.target.value;
+        }
+
+        if(e.target.id === 'lineWidth') {
+            lineWidth =  e.target.value;
+        }
+        
+    });
+
+    const draw = (e) => {
+        if(!isPainting) {
+            return;
+        }
+
+        ctx.lineWidth = lineWidth;
+        ctx.lineCap = 'round';
+        let xPosition=e.clientX - canvasOffsetX
+        let yPosition=e.clientY
+        ctx.strokeStyle =color;
+        ctx.lineWidth=lineWidth;
+        ctx.lineTo(xPosition,yPosition);
+        send({'data':{
+            'action':'draw',
+            'postion':{
+            xPosition,
+            yPosition},
+            'size':lineWidth,
+            'color':color
+          }}
+        )
+        ctx.stroke();
+    }
+
+
     function listen(path) {
-      const url = new URL(path, 'ws://{{ asyncapi.server(params.server).url() }}').toString()
+      const url = new URL(path, 'ws://localhost').toString()
       connection = new WebSocket(url)
 
       connection.onerror = error => {
@@ -40,23 +192,57 @@
       }
 
       connection.onmessage = e => {
-        console.log('Server says:', e.data)
+        const message = JSON?.parse(e.data);
+        // add user from toolbar when connected 
+        console.log("disconnect",message)
+
+        if(message.connections){
+          message.connections.forEach((id,index) => {
+            var existing = document.getElementById(id)
+            if (!existing) {
+              $("#drawers").append(getAvatr(id,index))
+            }
+          })
+        // remove user from toolbar when disconnected 
+        }else if(message.disconnections){
+          document.getElementById(message.disconnections).remove()
+        // draw function
+        }else{
+          switch(message?.data?.action){
+            case 'draw':
+              ctx.lineTo(message?.data?.postion?.xPosition,message?.data?.postion?.yPosition);
+              ctx.strokeStyle =message?.data?.color;
+              ctx.lineWidth=message?.data?.size;
+              ctx.stroke();
+              break;
+            case 'mouseup':
+              ctx.stroke();
+              ctx.beginPath();
+              break;
+
+          }
+        }
       }
     }
 
-    function send(message) {
-      if (!connection) {
-        console.error('You have to call listen(channelName) first. See the list of available commands and below.');
-        displayHelp();
-        return;
-      }
-      let msg = message;
-      if (typeof msg === 'object') msg = JSON.stringify(msg);
-      connection.send(msg);
-      console.info('Hint: check out the server logs to see your message.');
-    }
+    canvas.addEventListener('mousedown', (e) => {
+        isPainting = true;
+        startX = e.clientX;
+        startY = e.clientY;
+    });
 
-    displayHelp();
+    canvas.addEventListener('mouseup', e => {
+        isPainting = false;
+        ctx.stroke();
+        ctx.beginPath();
+        send({'data':{
+            'action':'mouseup',
+          }}
+        )
+        
+        let base24=canvas.toDataURL('image/png')
+    });
+    canvas.addEventListener('mousemove', draw);
     </script>
   </body>
 </html>
